@@ -4,11 +4,10 @@
     <groupId>com.joragupra.cryptocurrency</groupId>
     <artifactId>Assignment1</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>my-app</name>
-    <url>http://maven.apache.org</url>
+    <version>1.0</version>
+    <name>Assignment1-ScroogeCoin</name>
+    <url>https://github.com/joragupra/cryptocurrency</url>
     <dependencies>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -33,35 +32,6 @@
             <version>1.10.19</version>
             <scope>test</scope>
         </dependency>
-
-
-
-        <!--
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-            <version>1.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-runner</artifactId>
-            <version>1.0.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
-            <version>4.12.2</version>
-            <scope>test</scope>
-        </dependency>
--->
     </dependencies>
     <build>
         <plugins>
