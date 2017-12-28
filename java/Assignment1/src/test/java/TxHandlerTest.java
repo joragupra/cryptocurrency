@@ -9,21 +9,12 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.Random;
 import java.util.UUID;
 
+import static testutils.KeyFactory.getKey;
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.commons.codec.binary.Base64;
-
 public class TxHandlerTest {
-
-    public static KeyPair getKey() throws NoSuchProviderException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        Security.addProvider(new BouncyCastleProvider());
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
-        keyGen.initialize(1024, random);
-        return keyGen.generateKeyPair();
-    }
 
     @Test
     public void testConstructor() {
@@ -197,22 +188,6 @@ public class TxHandlerTest {
         TxHandler txHandler = new TxHandler(utxoPool);
 
         assertTrue(txHandler.isValidTx(tx1));
-    }
-
-    private Transaction createTxOutOfThinHair(double numCoins, KeyPair initialOwner) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-        Transaction initialTx = new Transaction();
-        initialTx.addOutput(numCoins, initialOwner.getPublic());
-        // that value has no meaning, but tx.getRawDataToSign(0) will access in.prevTxHash;
-        Random r = new Random();
-        byte[] initialHash = BigInteger.valueOf((10000 + r.nextLong()) % 10000000).toByteArray();
-        initialTx.addInput(initialHash, 0);
-        Signature signature = Signature.getInstance("SHA256withRSA");
-        signature.initSign(initialOwner.getPrivate());
-        signature.update(initialTx.getRawDataToSign(0));
-        byte[] sig = signature.sign();
-        initialTx.addSignature(sig, 0);
-        initialTx.finalize();
-        return initialTx;
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -410,7 +385,7 @@ public class TxHandlerTest {
         Transaction initialTx = createTxOutOfThinHair(10.0, initialOwner);
 
         KeyPair anotherInitialOwner = getKey();
-        Transaction initialTx2= createTxOutOfThinHair(10.0, anotherInitialOwner);
+        Transaction initialTx2= createTxOutOfThinHair(5.0, anotherInitialOwner);
 
         // The transaction output of the root transaction is unspent output
         UTXOPool utxoPool = new UTXOPool();
@@ -434,14 +409,14 @@ public class TxHandlerTest {
         tx1.finalize();
 
         Transaction tx2 = new Transaction();
-        tx2.addOutput(1, newOwner.getPublic());
-        tx2.addOutput(1, newOwner.getPublic());
-        tx2.addInput(initialTx.getHash(), 0);
+        tx2.addOutput(0.5, newOwner.getPublic());
+        tx2.addOutput(0.5, newOwner.getPublic());
+        tx2.addInput(initialTx2.getHash(), 0);
 
         Signature signature2 = Signature.getInstance("SHA256withRSA");
-        signature2.initSign(initialOwner.getPrivate());
+        signature2.initSign(anotherInitialOwner.getPrivate());
         signature2.update(tx2.getRawDataToSign(0));
-        byte[] sig2 = signature.sign();
+        byte[] sig2 = signature2.sign();
         byte tmp = sig2[0];
         sig2[0] = sig2[1];
         sig2[1] = tmp;
@@ -513,6 +488,22 @@ public class TxHandlerTest {
 
         assertEquals(1, appliedTx.length);
         assertEquals(tx1, appliedTx[0]);
+    }
+
+    private Transaction createTxOutOfThinHair(double numCoins, KeyPair initialOwner) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        Transaction initialTx = new Transaction();
+        initialTx.addOutput(numCoins, initialOwner.getPublic());
+        // that value has no meaning, but tx.getRawDataToSign(0) will access in.prevTxHash;
+        Random r = new Random();
+        byte[] initialHash = BigInteger.valueOf((10000 + r.nextLong()) % 10000000).toByteArray();
+        initialTx.addInput(initialHash, 0);
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(initialOwner.getPrivate());
+        signature.update(initialTx.getRawDataToSign(0));
+        byte[] sig = signature.sign();
+        initialTx.addSignature(sig, 0);
+        initialTx.finalize();
+        return initialTx;
     }
 
 }
